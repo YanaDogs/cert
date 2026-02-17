@@ -2,169 +2,173 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>מנפיק תעודות - יאנה ברגמן</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
-        body { font-family: 'Arial', sans-serif; background: #333; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
-        
-        .no-print { 
-            background: #fff; padding: 20px; border-radius: 12px; width: 400px; 
-            margin-bottom: 30px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.4); 
-        }
-        .no-print input { width: 90%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; }
-        .no-print button { 
-            width: 95%; padding: 14px; background: #c5a059; color: white; 
-            border: none; border-radius: 6px; cursor: pointer; font-size: 18px; font-weight: bold;
-        }
-
-        #pdf-wrapper {
-            background: white;
-            width: 297mm;
-            height: 210mm;
-            display: flex;
+        /* עיצוב הממשק בלבד */
+        body { 
+            font-family: 'Arial', sans-serif; 
+            background: #f0f0f0; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
             justify-content: center;
-            align-items: center;
+            min-height: 100vh;
+            margin: 0; 
+            padding: 20px;
             box-sizing: border-box;
         }
+        
+        .container { 
+            background: #fff; 
+            padding: 30px; 
+            border-radius: 15px; 
+            width: 100%;
+            max-width: 450px; 
+            text-align: center; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+        }
 
+        h2 { color: #c5a059; margin-bottom: 25px; font-size: 24px; }
+
+        input { 
+            width: 100%; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            box-sizing: border-box;
+            font-size: 16px; /* מונע זום אוטומטי באייפון */
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .checkbox-group input { width: auto; height: 20px; width: 20px; }
+
+        button { 
+            width: 100%; 
+            padding: 18px; 
+            background: #c5a059; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 20px; 
+            font-weight: bold;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+
+        button:active { background: #a38345; }
+
+        /* הסתרת התעודה מהמסך לגמרי */
+        #offscreen-container {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+        }
+
+        /* עיצוב התעודה (נשאר זהה עבור ה-PDF) */
         #certificate { 
-            width: 280mm; 
-            height: 190mm; 
-            border: 6px double #c5a059; 
-            position: relative; 
-            padding: 30px 50px; 
+            width: 297mm; 
+            height: 210mm; 
+            padding: 40px 60px; 
             box-sizing: border-box; 
             background: white; 
             display: flex; 
             flex-direction: column;
-            justify-content: space-between; 
+            justify-content: space-between;
+            border: 10px double #c5a059;
         }
-
-        .header-section { text-align: center; }
-        .title { font-size: 65px; font-weight: bold; color: #1a2a3a; margin: 10px 0; }
-
-        .content-section { 
-            font-size: 28px; 
-            line-height: 2.2; 
-            text-align: right; 
-            color: #333;
-            margin-top: -20px;
-        }
-
-        .underline { 
-            display: inline-block; 
-            border-bottom: 2px solid #333; 
-            min-width: 220px; 
-            text-align: center; 
-            font-weight: bold; 
-            padding: 0 10px;
-            margin: 0 5px;
-        }
-
-        .distinction-area { 
-            text-align: center; 
-            min-height: 50px;
-        }
-        .distinction-text { 
-            font-size: 38px; 
-            color: #c5a059; 
-            font-weight: bold; 
-            display: none;
-            letter-spacing: 2px;
-        }
-
-        /* עיצוב תחתון חדש - יישור לימין */
-        .footer { 
-            display: flex; 
-            justify-content: flex-end; /* הכל מוצמד לימין */
-            width: 100%; 
-            padding-bottom: 10px;
-        }
-
-        .signature-section { 
-            text-align: center; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-left: 20px; /* רווח מהקצה השמאלי אם יהיה צורך */
-        }
-
-        .sig-line { border-top: 2px solid #000; width: 220px; margin-bottom: 10px; }
-        .sig-name { font-size: 24px; font-weight: bold; margin: 0; white-space: nowrap; }
-        .sig-title { font-size: 16px; color: #666; margin: 0 0 10px 0; white-space: nowrap; }
-
-        .logo-section img { 
-            max-width: 150px; 
-            max-height: 90px; 
-            object-fit: contain;
-        }
+        .title { font-size: 70px; font-weight: bold; color: #1a2a3a; text-align: center; margin-top: 20px; }
+        .content { font-size: 35px; line-height: 2.2; text-align: right; color: #333; }
+        .underline { display: inline-block; border-bottom: 3px solid #333; min-width: 250px; text-align: center; font-weight: bold; }
+        .distinction { text-align: center; font-size: 45px; color: #c5a059; font-weight: bold; display: none; }
+        .footer { display: flex; justify-content: flex-end; width: 100%; }
+        .sig-box { text-align: center; display: flex; flex-direction: column; align-items: center; }
+        .sig-line { border-top: 2px solid #000; width: 250px; margin-bottom: 10px; }
+        .sig-name { font-size: 28px; font-weight: bold; margin: 0; }
+        .sig-title { font-size: 20px; color: #666; margin-bottom: 15px; }
+        .logo { max-width: 180px; max-height: 100px; }
     </style>
 </head>
 <body>
 
-    <div class="no-print">
-        <h2 style="margin-top:0; color:#c5a059;">הנפקת תעודה</h2>
+    <div class="container">
+        <h2>הנפקת תעודת אילוף</h2>
         <input type="text" id="inName" placeholder="שם הלקוח (מר/גברת)">
         <input type="text" id="inDog" placeholder="שם הכלב/ה">
         <input type="number" id="inHours" placeholder="מספר שעות אילוף">
-        <div style="margin: 10px 0; font-size: 16px;">
-            <input type="checkbox" id="inDist" style="width: auto;"> <b>הצטיינות</b>
+        
+        <div class="checkbox-group">
+            <input type="checkbox" id="inDist">
+            <label for="inDist">בהצטיינות</label>
         </div>
-        <button onclick="downloadPDF()">הורד תעודה מקצועית</button>
+
+        <button onclick="downloadPDF()">הורד תעודה למכשיר</button>
     </div>
 
-    <div id="pdf-wrapper">
+    <div id="offscreen-container">
         <div id="certificate">
-            <div class="header-section">
-                <div class="title">תעודת&nbsp;אילוף</div>
-            </div>
-
-            <div class="content-section">
+            <div class="title">תעודת&nbsp;אילוף</div>
+            
+            <div class="content">
                 מר/גברת&nbsp;<span class="underline" id="outName"></span><br>
                 שם&nbsp;הכלב/ה&nbsp;<span class="underline" id="outDog"></span><br>
-                סיימו&nbsp;בהצלחה&nbsp;תהליך&nbsp;אילוף&nbsp;בהיקף&nbsp;של&nbsp;<span class="underline" id="outHours" style="min-width:80px"></span>&nbsp;שעות
+                סיימו&nbsp;בהצלחה&nbsp;תהליך&nbsp;אילוף&nbsp;בהיקף&nbsp;של&nbsp;<span class="underline" id="outHours"></span>&nbsp;שעות
             </div>
 
-            <div class="distinction-area">
-                <div id="outDist" class="distinction-text">בהצטיינות!</div>
-            </div>
+            <div id="outDist" class="distinction">!בהצטיינות</div>
 
             <div class="footer">
-                <div class="signature-section">
+                <div class="sig-box">
                     <div class="sig-line"></div>
-                    <p class="sig-name">יאנה&nbsp;ברגמן</p>
-                    <p class="sig-title">מאלפת&nbsp;מוסמכת</p>
-                    <div class="logo-section">
-                        <img src="LOGO.png" alt="לוגו" onerror="this.style.opacity='0'">
-                    </div>
+                    <div class="sig-name">יאנה&nbsp;ברגמן</div>
+                    <div class="sig-title">מאלפת&nbsp;מוסמכת</div>
+                    <img src="LOGO.png" class="logo" onerror="this.style.opacity='0'">
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        function downloadPDF() {
+        async function downloadPDF() {
+            // עדכון הנתונים בתעודה הנסתרת
+            const dog = document.getElementById('inDog').value || "כלב";
             document.getElementById('outName').innerText = document.getElementById('inName').value || "__________";
-            document.getElementById('outDog').innerText = document.getElementById('inDog').value || "__________";
+            document.getElementById('outDog').innerText = dog;
             document.getElementById('outHours').innerText = document.getElementById('inHours').value || "___";
             document.getElementById('outDist').style.display = document.getElementById('inDist').checked ? 'block' : 'none';
 
-            const element = document.getElementById('pdf-wrapper');
+            const element = document.getElementById('certificate');
             const opt = {
                 margin: 0,
-                filename: `תעודת_אילוף_${document.getElementById('inDog').value || 'כלב'}.pdf`,
+                filename: `תעודה_${dog}.pdf`,
                 image: { type: 'jpeg', quality: 1 },
                 html2canvas: { 
                     scale: 2, 
                     useCORS: true,
-                    logging: false,
                     letterRendering: true
                 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
             };
 
-            html2pdf().set(opt).from(element).save();
+            // הפעלת ההורדה
+            try {
+                await html2pdf().set(opt).from(element).save();
+            } catch (err) {
+                alert("חלה שגיאה בהורדה. נסה שוב או בדוק אם הלוגו תקין.");
+            }
         }
     </script>
 </body>
