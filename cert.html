@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>מנפיק תעודות - יאנה ברגמן</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        body { font-family: 'Arial', sans-serif; background: #333; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        
+        .no-print { 
+            background: #fff; padding: 20px; border-radius: 12px; width: 400px; 
+            margin-bottom: 30px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.4); 
+        }
+        .no-print input { width: 90%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; }
+        .no-print button { 
+            width: 95%; padding: 14px; background: #c5a059; color: white; 
+            border: none; border-radius: 6px; cursor: pointer; font-size: 18px; font-weight: bold;
+        }
+
+        #pdf-wrapper {
+            background: white;
+            width: 297mm;
+            height: 210mm;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        #certificate { 
+            width: 280mm; 
+            height: 190mm; 
+            border: 6px double #c5a059; 
+            position: relative; 
+            padding: 30px 50px; 
+            box-sizing: border-box; 
+            background: white; 
+            display: flex; 
+            flex-direction: column;
+            justify-content: space-between; 
+        }
+
+        .header-section { text-align: center; }
+        .title { font-size: 65px; font-weight: bold; color: #1a2a3a; margin: 10px 0; }
+
+        .content-section { 
+            font-size: 28px; 
+            line-height: 2.2; 
+            text-align: right; 
+            color: #333;
+            margin-top: -20px;
+        }
+
+        .underline { 
+            display: inline-block; 
+            border-bottom: 2px solid #333; 
+            min-width: 220px; 
+            text-align: center; 
+            font-weight: bold; 
+            padding: 0 10px;
+            margin: 0 5px;
+        }
+
+        .distinction-area { 
+            text-align: center; 
+            min-height: 50px;
+        }
+        .distinction-text { 
+            font-size: 38px; 
+            color: #c5a059; 
+            font-weight: bold; 
+            display: none;
+            letter-spacing: 2px;
+        }
+
+        /* עיצוב תחתון חדש - יישור לימין */
+        .footer { 
+            display: flex; 
+            justify-content: flex-end; /* הכל מוצמד לימין */
+            width: 100%; 
+            padding-bottom: 10px;
+        }
+
+        .signature-section { 
+            text-align: center; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-left: 20px; /* רווח מהקצה השמאלי אם יהיה צורך */
+        }
+
+        .sig-line { border-top: 2px solid #000; width: 220px; margin-bottom: 10px; }
+        .sig-name { font-size: 24px; font-weight: bold; margin: 0; white-space: nowrap; }
+        .sig-title { font-size: 16px; color: #666; margin: 0 0 10px 0; white-space: nowrap; }
+
+        .logo-section img { 
+            max-width: 150px; 
+            max-height: 90px; 
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print">
+        <h2 style="margin-top:0; color:#c5a059;">הנפקת תעודה</h2>
+        <input type="text" id="inName" placeholder="שם הלקוח (מר/גברת)">
+        <input type="text" id="inDog" placeholder="שם הכלב/ה">
+        <input type="number" id="inHours" placeholder="מספר שעות אילוף">
+        <div style="margin: 10px 0; font-size: 16px;">
+            <input type="checkbox" id="inDist" style="width: auto;"> <b>הצטיינות</b>
+        </div>
+        <button onclick="downloadPDF()">הורד תעודה מקצועית</button>
+    </div>
+
+    <div id="pdf-wrapper">
+        <div id="certificate">
+            <div class="header-section">
+                <div class="title">תעודת&nbsp;אילוף</div>
+            </div>
+
+            <div class="content-section">
+                מר/גברת&nbsp;<span class="underline" id="outName"></span><br>
+                שם&nbsp;הכלב/ה&nbsp;<span class="underline" id="outDog"></span><br>
+                סיימו&nbsp;בהצלחה&nbsp;תהליך&nbsp;אילוף&nbsp;בהיקף&nbsp;של&nbsp;<span class="underline" id="outHours" style="min-width:80px"></span>&nbsp;שעות
+            </div>
+
+            <div class="distinction-area">
+                <div id="outDist" class="distinction-text">בהצטיינות!</div>
+            </div>
+
+            <div class="footer">
+                <div class="signature-section">
+                    <div class="sig-line"></div>
+                    <p class="sig-name">יאנה&nbsp;ברגמן</p>
+                    <p class="sig-title">מאלפת&nbsp;מוסמכת</p>
+                    <div class="logo-section">
+                        <img src="LOGO.png" alt="לוגו" onerror="this.style.opacity='0'">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function downloadPDF() {
+            document.getElementById('outName').innerText = document.getElementById('inName').value || "__________";
+            document.getElementById('outDog').innerText = document.getElementById('inDog').value || "__________";
+            document.getElementById('outHours').innerText = document.getElementById('inHours').value || "___";
+            document.getElementById('outDist').style.display = document.getElementById('inDist').checked ? 'block' : 'none';
+
+            const element = document.getElementById('pdf-wrapper');
+            const opt = {
+                margin: 0,
+                filename: `תעודת_אילוף_${document.getElementById('inDog').value || 'כלב'}.pdf`,
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { 
+                    scale: 2, 
+                    useCORS: true,
+                    logging: false,
+                    letterRendering: true
+                },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+            };
+
+            html2pdf().set(opt).from(element).save();
+        }
+    </script>
+</body>
+</html>
