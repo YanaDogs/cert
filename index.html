@@ -1,157 +1,184 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>מנפיק תעודות - יאנה ברגמן</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מנפיק תעודות - יאנה ברגמן</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700&family=Frank+Ruhl+Libre:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<!-- html2canvas -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --gold: #c5a059;
+            --dark-blue: #1a2a3a;
+        }
 
-<!-- jsPDF -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        body {
+            font-family: 'Assistant', sans-serif;
+            background: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+            margin: 0;
+        }
 
-<style>
-body{
-    font-family: Arial, sans-serif;
-    background:#f0f0f0;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
-    margin:0;
-    padding:20px;
-}
+        .ui-container {
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
 
-.container{
-    background:#fff;
-    padding:30px;
-    border-radius:15px;
-    max-width:450px;
-    width:100%;
-    text-align:center;
-    box-shadow:0 10px 25px rgba(0,0,0,0.1);
-}
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
 
-input{
-    width:100%;
-    padding:15px;
-    margin:10px 0;
-    border:1px solid #ddd;
-    border-radius:8px;
-    font-size:16px;
-    box-sizing:border-box;
-}
+        button {
+            width: 100%;
+            padding: 15px;
+            background: var(--gold);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
 
-button{
-    width:100%;
-    padding:18px;
-    background:#c5a059;
-    color:white;
-    border:none;
-    border-radius:8px;
-    font-size:20px;
-    font-weight:bold;
-    cursor:pointer;
-}
+        #offscreen { position: absolute; left: -9999px; }
 
-#offscreen{
-    position:absolute;
-    left:-9999px;
-    top:-9999px;
-}
+        #certificate {
+            width: 1123px;
+            height: 794px;
+            background: #fffdf5;
+            padding: 60px;
+            box-sizing: border-box;
+            border: 15px solid var(--gold);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            box-shadow: inset 0 0 0 5px white, inset 0 0 0 7px var(--gold);
+        }
 
-/* A4 Landscape מדויק בפיקסלים */
-#certificate{
-    width:1123px;   /* 297mm */
-    height:794px;   /* 210mm */
-    padding:40px 60px;
-    box-sizing:border-box;
-    background:white;
-    border:10px double #c5a059;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-}
+        .title {
+            font-family: 'Frank Ruhl Libre', serif;
+            font-size: 85px;
+            color: var(--dark-blue);
+            text-align: center;
+            line-height: 0.9; /* מצמצם את המרווח בין השורות */
+            margin-top: 20px;
+        }
 
-.title{
-    font-size:70px;
-    font-weight:bold;
-    text-align:center;
-    color:#1a2a3a;
-}
+        /* כאן הגדרתי את העיצוב למילה הקטנה */
+        .title .small-word {
+            font-size: 40px; /* חצי מגודל הכותרת */
+            display: block;  /* גורם לה לרדת שורה */
+            margin-top: 10px;
+            font-weight: 400; /* פחות מודגש כדי שייראה עדין */
+        }
 
-.content{
-    font-size:35px;
-    line-height:2.2;
-    text-align:right;
-}
+        .content {
+            font-size: 38px;
+            line-height: 2;
+            text-align: center;
+            color: #333;
+            width: 90%;
+        }
 
-.underline{
-    border-bottom:3px solid #333;
-    display:inline-block;
-    min-width:250px;
-    text-align:center;
-    font-weight:bold;
-}
+        .underline {
+            color: var(--gold);
+            font-weight: 700;
+            border-bottom: 2px solid var(--gold);
+            padding: 0 10px;
+            display: inline-block;
+            min-width: 150px;
+        }
 
-.distinction{
-    text-align:center;
-    font-size:45px;
-    color:#c5a059;
-    font-weight:bold;
-    display:none;
-}
+        .distinction {
+            font-size: 45px;
+            font-weight: 800;
+            color: #d4af37;
+            border: 4px double #d4af37;
+            padding: 10px 40px;
+            margin: 20px 0;
+            visibility: hidden;
+            border-radius: 10px;
+        }
 
-.footer{
-    display:flex;
-    justify-content:flex-end;
-}
+        .footer {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 0 40px;
+        }
 
-.sig-line{
-    border-top:2px solid #000;
-    width:250px;
-    margin-bottom:10px;
-}
+        .signature-area {
+            text-align: center;
+        }
 
-.sig-name{font-size:28px;font-weight:bold;}
-.sig-title{font-size:20px;color:#666;}
-.logo{max-width:180px;}
-</style>
+        .sig-line {
+            border-top: 2px solid #333;
+            width: 220px;
+            margin-bottom: 8px;
+        }
+
+        .sig-name { font-size: 26px; font-weight: bold; color: var(--dark-blue); }
+        .sig-title { font-size: 18px; color: #777; }
+
+        .logo { max-height: 120px; filter: grayscale(20%); }
+    </style>
 </head>
-
 <body>
 
-<div class="container">
-    <h2>הנפקת תעודת אילוף</h2>
+<div class="ui-container">
+    <h2>הנפקת תעודה</h2>
     <input id="inName" placeholder="שם הלקוח">
     <input id="inDog" placeholder="שם הכלב">
     <input id="inHours" placeholder="מספר שעות">
-    <label>
-        <input type="checkbox" id="inDist"> בהצטיינות
+    <label style="display:block; margin: 10px 0;">
+        <input type="checkbox" id="inDist" style="width:auto;"> הצטיינות
     </label>
     <button onclick="generatePDF()">הורד תעודה</button>
 </div>
 
 <div id="offscreen">
     <div id="certificate">
-        <div class="title">וזאת התעודה<br>כי</div>
+        <div class="title">
+            וזאת התעודה
+            <span class="small-word">כי</span>
+        </div>
 
         <div class="content">
-            מר/גברת <span class="underline" id="outName"></span><br>
-            שם הכלב/ה <span class="underline" id="outDog"></span><br>
+             מר/גברת <span class="underline" id="outName"></span><br>
+             שם הכלב/ה <span class="underline" id="outDog"></span><br>
             סיימו בהצלחה תהליך אילוף בהיקף של 
-            <span class="underline" id="outHours"></span> שעות
+            <span class="underline" id="outHours"></span> שעות.
         </div>
 
         <div id="outDist" class="distinction">בהצטיינות</div>
 
         <div class="footer">
-            <div>
+            <img src="LOGO.png" class="logo" alt="Logo">
+            <div class="signature-area">
                 <div class="sig-line"></div>
                 <div class="sig-name">יאנה ברגמן</div>
-                <div class="sig-title">מאלפת מוסמכת</div>
-                <img src="LOGO.png" class="logo">
+                <div class="sig-title">מאלפת כלבים מוסמכת</div>
             </div>
         </div>
     </div>
@@ -159,36 +186,23 @@ button{
 
 <script>
 async function generatePDF(){
+    document.getElementById("outName").innerText = document.getElementById("inName").value || "__________";
+    document.getElementById("outDog").innerText = document.getElementById("inDog").value || "הכלב";
+    document.getElementById("outHours").innerText = document.getElementById("inHours").value || "___";
+    
+    const isDist = document.getElementById("inDist").checked;
+    document.getElementById("outDist").style.visibility = isDist ? "visible" : "hidden";
 
-    const name = document.getElementById("inName").value || "__________";
-    const dog = document.getElementById("inDog").value || "כלב";
-    const hours = document.getElementById("inHours").value || "___";
-
-    document.getElementById("outName").innerText = name;
-    document.getElementById("outDog").innerText = dog;
-    document.getElementById("outHours").innerText = hours;
-    document.getElementById("outDist").style.display =
-        document.getElementById("inDist").checked ? "block" : "none";
-
-    const element = document.getElementById("certificate");
-
-    const canvas = await html2canvas(element,{
-        scale:3,
-        useCORS:true,
-        backgroundColor:"#ffffff"
+    const canvas = await html2canvas(document.getElementById("certificate"), {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: "#fffdf5"
     });
-
-    const imgData = canvas.toDataURL("image/jpeg",1.0);
 
     const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({
-        orientation:"landscape",
-        unit:"mm",
-        format:[297,210]
-    });
-
-    pdf.addImage(imgData,"JPEG",0,0,297,210);
-    pdf.save("תעודה.pdf");
+    const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: [297, 210] });
+    pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, 297, 210);
+    pdf.save(`תעודה_${document.getElementById("inName").value}.pdf`);
 }
 </script>
 
